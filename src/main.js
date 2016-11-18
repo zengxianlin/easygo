@@ -2,7 +2,9 @@ import Vue from 'vue'
 import App from './App'
 import store from './store.js'
 import VueResource from 'vue-resource'
+import VueSocketio from 'vue-socket.io'
 
+Vue.use(VueSocketio, 'http://socketserver.com:1923')
 Vue.use(VueResource)
 
 // 创建vue实例并渲染到app

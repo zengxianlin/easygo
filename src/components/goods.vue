@@ -62,6 +62,7 @@ export default {
     },
     submit: function () {
       let _this = this
+      _this.$store.commit('machineCode', this.machineCode)
       $.ajax({
         type: 'post',
         url: 'http://localhost:3333/api/machine/init',
@@ -75,6 +76,7 @@ export default {
             _this.$store.commit('messageShow')
             _this.$store.commit('goodsShow')
             _this.$store.commit('initmessage', 'ok')
+            _this.$store.commit('initres', res)
           } else {
             window.alert('初始化机器失败，请重试')
           }

@@ -33,10 +33,11 @@ app.all('*', function(req, res, next) {
 });
 
 /******************以下是api部分***********************/
+var dbUrl = 'http://test.open.easygovm.com'
 
 // 初始化机器
 app.post('/api/machine/init', function(req, res) {
-  var sreq = superagent.post('http://test.easygovm.com/api/v2/machine/init');
+  var sreq = superagent.post(dbUrl + '/api/v2/machine/init');
   sreq.type('form')
   sreq.send(req.body);
   sreq.pipe(res);
@@ -47,22 +48,22 @@ app.post('/api/machine/init', function(req, res) {
 
 //微信请求支付
 app.post('/api/show/wxqrcode', function(req, res) {
-  var sreq = superagent.post('http://test.easygovm.com/api/v1/show/wxqrcode');
+  var sreq = superagent.post(dbUrl + '/api/v1/show/wxqrcode');
   sreq.type('json')
   sreq.send(req.body);
   sreq.pipe(res);
   sreq.on('end', function() {
-    console.log('初始化机器');
+    console.log('微信支付订单');
   });
 });
 
 //支付宝请求支付
 app.post('/api/show/aliqrcode', function(req, res) {
-  var sreq = superagent.post('http://test.easygovm.com/api/v1/show/aliqrcode');
+  var sreq = superagent.post(dbUrl + '/api/v1/show/aliqrcode');
   sreq.type('json')
   sreq.send(req.body);
   sreq.pipe(res);
   sreq.on('end', function() {
-    console.log('初始化机器');
+    console.log('支付宝支付订单');
   });
 });

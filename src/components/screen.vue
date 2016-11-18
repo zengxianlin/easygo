@@ -16,7 +16,7 @@
   </div>
   <div class="goodsScreen" v-show="goodsScreen">
     <div class="goods">
-      <img :src="goodsInfo.skuPicUrl" :alt="恒大冰泉">
+      <img :src="goodsInfo.skuPicUrl" :alt="goodsInfo.skuPackageType">
       <p>价格:<strong>￥<span>{{goods.aisleGoodsPrice}}</span></strong></p>
       <p>货道:{{goods.aisleName}}</p>
       <p class="name">{{goodsInfo.skuPackageType + goodsInfo.skuSize}}</p>
@@ -35,10 +35,12 @@
         <h4>-------请选择以下方式支付-------</h4>
       </p>
       <ul>
-        <li><span>支付宝付款</span><img src="http://a.cphotos.bdimg.com/timg?image&quality=100&size=b4000_4000&sec=1479268303&di=a35baa1d8940d97b9305ee726302ef95&src=http://h.hiphotos.baidu.com/image/pic/item/3bf33a87e950352a5936aa0a5543fbf2b2118b59.jpg" alt=""
-          /></li>
-        <li><span>微信付款</span><img src="http://a.cphotos.bdimg.com/timg?image&quality=100&size=b4000_4000&sec=1479268303&di=a35baa1d8940d97b9305ee726302ef95&src=http://h.hiphotos.baidu.com/image/pic/item/3bf33a87e950352a5936aa0a5543fbf2b2118b59.jpg" alt=""
-          /></li>
+        <li><span>支付宝付款</span>
+          <canvas id="aliqrcode" :height="size + 'px'" :width="size + 'px'" ref="aliqr" :val="alival"></canvas>
+        </li>
+        <li><span>微信付款</span>
+          <canvas id="wxqrcode" :height="size + 'px'" :width="size + 'px'" ref="wxqr" :val="wxval"></canvas>
+        </li>
       </ul>
     </div>
   </div>
@@ -47,7 +49,7 @@
 
 <script>
 export default {
-  name: 'AdminAddbox',
+  name: 'screen',
   data () {
     return {
       numScreen: this.$store.state.numScreen,
@@ -58,7 +60,14 @@ export default {
         paddingTop: '10px'
       },
       goods: this.$store.state.goods,
-      goodsInfo: this.$store.state.goodsInfo
+      goodsInfo: this.$store.state.goodsInfo,
+      wxval: this.$store.state.wxval,
+      alival: this.$store.state.alival,
+      size: this.$store.state.size,
+      bgColor: this.$store.state.bgColor,
+      fgColor: this.$store.state.fgColor,
+      aliqr: this.$store.state.aliqr,
+      wxqr: this.$store.state.wxqr
     }
   },
   computed: {
@@ -79,7 +88,28 @@ export default {
     },
     goodsInfo: function () {
       return this.$store.state.goodsInfo
+    },
+    alival: function () {
+      return this.$store.state.alival
+    },
+    wxval: function () {
+      return this.$store.state.wxval
+    },
+    size: function () {
+      return this.$store.state.size
+    },
+    bgColor: function () {
+      return this.$store.state.bgColor
+    },
+    fgColor: function () {
+      return this.$store.state.fgColor
     }
+  },
+  mounted: function () {
+    this.$store.commit('aliqr', this.$refs.aliqr)
+    this.$store.commit('wxqr', this.$refs.wxqr)
+  },
+  methods: {
   }
 }
 </script>
@@ -137,61 +167,13 @@ export default {
         .cover {
             width: 100%;
             height: 10%;
-            p{
-              display: inline-block;
-            }
-            .spinner {
-                width: 20px;
-                height: 20px;
-                position: relative;
-                margin: 0 auto;
-                margin-top: 3px;
+            p {
                 display: inline-block;
-                margin-bottom: -4px;
-            }
-            .double-bounce1,
-            .double-bounce2 {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                background-color: #bcb1f4;
-                opacity: 0.6;
-                position: absolute;
-                top: 0;
-                left: 0;
-
-                -webkit-animation: bounce 2.0s infinite ease-in-out;
-                animation: bounce 2.0s infinite ease-in-out;
-            }
-
-            .double-bounce2 {
-                -webkit-animation-delay: -1.0s;
-                animation-delay: -1.0s;
-            }
-            @-webkit-keyframes bounce {
-                0%,
-                100% {
-                    -webkit-transform: scale(0.0);
-                }
-                50% {
-                    -webkit-transform: scale(1.0);
-                }
-            }
-            @keyframes bounce {
-                0%,
-                100% {
-                    transform: scale(0.0);
-                    -webkit-transform: scale(0.0);
-                }
-                50% {
-                    transform: scale(1.0);
-                    -webkit-transform: scale(1.0);
-                }
             }
         }
         .goods {
-            margin: 3% 3% 0 3%;
-            padding: 2% 2% 0 2%;
+            margin: 3% 3% 0;
+            padding: 2% 2% 0;
             img {
                 float: left;
                 width: 39%;
@@ -205,8 +187,8 @@ export default {
                     font-size: 26px;
                 }
             }
-            .name{
-              display: block;
+            .name {
+                display: block;
             }
         }
         .qrcode {
@@ -219,15 +201,18 @@ export default {
                 margin: 0 auto;
             }
             ul {
+              position: absolute;
+              left: -10px;
                 li {
                     float: left;
-                    width: 39%;
+                    width: 30%;
                     height: 39%;
                     display: inline-block;
-                    margin-left: 7%;
-                    img {
+                    margin-left: 29%;
+                    canvas {
                         width: 100%;
                         height: 100%;
+                        border: 4px solid #fff;
                     }
                     &:first-child {
                         margin-left: 0;

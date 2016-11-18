@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import $ from 'jquery'
+import $ from 'jquery'
+import qr from 'qrcode'
 Vue.use(Vuex)
 
 // store中的全局变量，只在store中使用
@@ -8,6 +9,7 @@ const arr = []
 // vuex实例  store
 const store = new Vuex.Store({
   state: {
+    initres: {},
     inits: [],
     initmessage: '',
     messageShow: true,
@@ -16,11 +18,31 @@ const store = new Vuex.Store({
     numScreen: false,
     goodsScreen: false,
     num: [],
+    wxval: null,
+    alival: null,
     arrid: '',
     goods: {},
-    goodsInfo: {}
+    goodsInfo: {},
+    machineCode: '',
+    size: 100,
+    bgColor: '#fff',
+    fgColor: '#000',
+    aliqr: {},
+    wxqr: {}
   },
   mutations: {
+    aliqr (state, aliqr) {
+      state.aliqr = aliqr
+    },
+    wxqr (state, wxqr) {
+      state.wxqr = wxqr
+    },
+    machineCode (state, machineCode) {
+      state.machineCode = machineCode
+    },
+    initres (state, initres) {
+      state.initres = initres
+    },
     inits (state, inits) {
       state.inits = inits
     },
@@ -326,14 +348,100 @@ const store = new Vuex.Store({
           break
         default:
           window.alert('您输入的数字不是货道号，请重新输入')
-          arr.splice(0, arr.length)
-          state.num = arr
           state.numScreen = true
           state.goodsScreen = false
       }
       let i = state.arrid
       state.goods = state.inits[i]
       state.goodsInfo = state.inits[i].goodsInfo
+      $.ajax({
+        type: 'post',
+        url: 'http://localhost:3333/api/show/wxqrcode',
+        dataType: 'json',
+        data: {
+          machineId: state.initres.machineInfo.machineId,
+          promotionId: null,
+          outTradeNo: state.machineCode + '-' + new Date().getTime(),
+          orderTotalAmount: state.inits[i].aisleGoodsPrice,
+          aisleName: state.inits[i].aisleName,
+          goodsSkuId: state.inits[i].goodsInfo.skuId,
+          goodsSkuSubject: state.inits[i].goodsInfo.skuSubject,
+          goodsOriginPrice: state.inits[i].goodsInfo.skuOriginalPrice,
+          goodsSoldPrice: state.inits[i].aisleGoodsPrice,
+          goodsSoldQuantity: 1
+        },
+        datatype: 'json',
+        success: function (res) {
+          if (res) {
+            state.wxval = JSON.parse(res.body).wxQrcodeUrl
+            var size = state.size
+            var bgColor = state.bgColor
+            var fgColor = state.fgColor
+            var wxqr = state.wxqr
+            var qrcode = qr(state.wxval)
+            var ctx = wxqr.getContext('2d')
+            var cells = qrcode.modules
+            var tileW = size / cells.length
+            var tileH = size / cells.length
+            cells.forEach((row, rdx) => {
+              row.forEach((cell, cdx) => {
+                ctx.fillStyle = cell ? fgColor : bgColor
+                var w = (Math.ceil((cdx + 1) * tileW) - Math.floor(cdx * tileW))
+                var h = (Math.ceil((rdx + 1) * tileH) - Math.floor(rdx * tileH))
+                ctx.fillRect(Math.round(cdx * tileW), Math.round(rdx * tileH), w, h)
+              })
+            })
+            arr.splice(0, arr.length)
+            state.num = arr
+          } else {
+            window.alert('')
+          }
+        }
+      })
+      $.ajax({
+        type: 'post',
+        url: 'http://localhost:3333/api/show/aliqrcode',
+        dataType: 'json',
+        data: {
+          machineId: state.initres.machineInfo.machineId,
+          promotionId: null,
+          outTradeNo: state.machineCode + '-' + new Date().getTime(),
+          orderTotalAmount: state.inits[i].aisleGoodsPrice,
+          aisleName: state.inits[i].aisleName,
+          goodsSkuId: state.inits[i].goodsInfo.skuId,
+          goodsSkuSubject: state.inits[i].goodsInfo.skuSubject,
+          goodsOriginPrice: state.inits[i].goodsInfo.skuOriginalPrice,
+          goodsSoldPrice: state.inits[i].aisleGoodsPrice,
+          goodsSoldQuantity: 1
+        },
+        datatype: 'json',
+        success: function (res) {
+          if (res) {
+            state.alival = JSON.parse(res.body).aliQrcodeUrl
+            var size = state.size
+            var bgColor = state.bgColor
+            var fgColor = state.fgColor
+            var aliqr = state.aliqr
+            var qrcode = qr(state.alival)
+            var ctx = aliqr.getContext('2d')
+            var cells = qrcode.modules
+            var tileW = size / cells.length
+            var tileH = size / cells.length
+            cells.forEach((row, rdx) => {
+              row.forEach((cell, cdx) => {
+                ctx.fillStyle = cell ? fgColor : bgColor
+                var w = (Math.ceil((cdx + 1) * tileW) - Math.floor(cdx * tileW))
+                var h = (Math.ceil((rdx + 1) * tileH) - Math.floor(rdx * tileH))
+                ctx.fillRect(Math.round(cdx * tileW), Math.round(rdx * tileH), w, h)
+              })
+            })
+            arr.splice(0, arr.length)
+            state.num = arr
+          } else {
+            window.alert('')
+          }
+        }
+      })
     }
   }
 })
