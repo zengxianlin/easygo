@@ -6,6 +6,7 @@
 
 ```bash
 npm install
+npm install node-sass
 ```
 
 ### 启动vue开发服务

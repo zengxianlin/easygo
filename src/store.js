@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import $ from 'jquery'
-import qr from 'qrcode'
+import qr from 'qr.js'
 Vue.use(Vuex)
 
 // store中的全局变量，只在store中使用
