@@ -1,27 +1,27 @@
-# easygo
+##  介绍
+ 这是一个easygo的虚拟售货机demo，包括了vue和vuex的基本用法，以及nodejs辅助前端进行跨域，node跨域代理转发请求等基础用法，由于目前就只有一台机器，所有没有做路由，后面如果有机器，添加路由和组件即可。
+## 使用
+### 安装依赖
 
-> this is easygo app
-
-## Build Setup
-
-``` bash
-# install dependencies
+```bash
 npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### 启动vue开发服务
+```bash
+npm run dev
+```
+
+### 启动node后台服务
+```bash
+cd server
+node app
+```
+### 测试
+安卓id生成就可以，机器id随便，不填都行
+自动化没有写。。只能凑合看把。
+
+### 端口
+前端开发端口在`localhost:8080`
+
+后端转发端口在`localhost:3333`
