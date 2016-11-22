@@ -21,7 +21,7 @@
       <p>货道:{{goods.aisleName}}</p>
       <p class="name">{{goodsInfo.skuPackageType + goodsInfo.skuSize}}</p>
     </div>
-    <div class="cover">
+    <div class="cover" v-show="goodsCover">
       <div class="spinner">
         <div class="double-bounce1"></div>
         <div class="double-bounce2"></div>
@@ -30,7 +30,7 @@
         请您尽快付款...
       </p>
     </div>
-    <div class="qrcode">
+    <div class="qrcode" v-show="goodsQqrcode">
       <p>
         <h4>-------请选择以下方式支付-------</h4>
       </p>
@@ -43,11 +43,27 @@
         </li>
       </ul>
     </div>
+    <div class="paySuccess" v-show="paySuccess">
+      <div class="spinner">
+        <div class="double-bounce1"></div>
+        <div class="double-bounce2"></div>
+      </div>
+      <h4>支付成功</h4>
+      <p>
+        请您尽快取走货物...
+      </p>
+    </div>
   </div>
 </div>
 </template>
 
 <script>
+// var x = 0
+// function countSecond () {
+//   x = x + 1
+//   console.log(x)
+// }
+// setInterval(countSecond, 1000)
 export default {
   name: 'screen',
   data () {
@@ -67,7 +83,10 @@ export default {
       bgColor: this.$store.state.bgColor,
       fgColor: this.$store.state.fgColor,
       aliqr: this.$store.state.aliqr,
-      wxqr: this.$store.state.wxqr
+      wxqr: this.$store.state.wxqr,
+      goodsCover: this.$store.state.goodsCover,
+      goodsQqrcode: this.$store.state.goodsCover,
+      paySuccess: this.$store.state.paySuccess
     }
   },
   computed: {
@@ -103,6 +122,15 @@ export default {
     },
     fgColor: function () {
       return this.$store.state.fgColor
+    },
+    goodsCover: function () {
+      return this.$store.state.goodsCover
+    },
+    goodsQqrcode: function () {
+      return this.$store.state.goodsCover
+    },
+    paySuccess: function () {
+      return this.$store.state.paySuccess
     }
   },
   mounted: function () {
@@ -110,6 +138,9 @@ export default {
     this.$store.commit('wxqr', this.$refs.wxqr)
   },
   methods: {
+    // clickButton: function (val) {
+    //   this.$socket.emit('emit_method', val)
+    // }
   }
 }
 </script>
@@ -218,10 +249,11 @@ export default {
                         margin-left: 0;
                     }
                 }
-
             }
         }
+        .paySuccess{
+          margin-top: 50px;
+        }
     }
-
 }
 </style>

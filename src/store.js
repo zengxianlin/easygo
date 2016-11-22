@@ -6,6 +6,7 @@ Vue.use(Vuex)
 
 // store中的全局变量，只在store中使用
 const arr = []
+var t = {}
 // vuex实例  store
 const store = new Vuex.Store({
   state: {
@@ -28,7 +29,12 @@ const store = new Vuex.Store({
     bgColor: '#fff',
     fgColor: '#000',
     aliqr: {},
-    wxqr: {}
+    wxqr: {},
+    orderId: null,
+    payType: null,
+    goodsCover: true,
+    goodsQqrcode: true,
+    paySuccess: false
   },
   mutations: {
     aliqr (state, aliqr) {
@@ -80,6 +86,7 @@ const store = new Vuex.Store({
     numempty (state) {
       arr.splice(0, arr.length)
       state.num = arr
+      clearInterval(t)
     },
     numexit (state) {
       arr.splice(0, arr.length)
@@ -87,6 +94,7 @@ const store = new Vuex.Store({
       state.flowsheet = true
       state.numScreen = false
       state.goodsScreen = false
+      clearInterval(t)
     },
     goodsScreenhide (state) {
       state.goodsScreen = false
@@ -354,6 +362,55 @@ const store = new Vuex.Store({
       let i = state.arrid
       state.goods = state.inits[i]
       state.goodsInfo = state.inits[i].goodsInfo
+      window.localStorage.PayLineNumber = state.initres.machineInfo.machineId + '-' + new Date().getTime()
+
+      var pay = function () {
+        $.ajax({
+          type: 'post',
+          url: 'http://localhost:3333/api/order/pay',
+          data: {
+            payLineNumber: window.localStorage.PayLineNumber
+          },
+          success: function (res) {
+            if (res.orderId != null && res.payType != null) {
+              state.orderId = res.orderId
+              state.payType = res.payType
+              clearInterval(t)
+              $.ajax({
+                type: 'post',
+                url: 'http://localhost:3333/api/order',
+                dataType: 'json',
+                data: {
+                  orderId: state.orderId,
+                  machineId: state.initres.machineInfo.machineId,
+                  promotionId: null,
+                  payType: state.payType,
+                  payLineNumber: window.localStorage.PayLineNumber,
+                  outTradeNo: window.localStorage.PayLineNumber,
+                  orderTotalAmount: state.inits[i].aisleGoodsPrice,
+                  orderStatus: 'PAY_SUCCESS',
+                  shipmentStatus: 'FALL',
+                  aisleName: state.inits[i].aisleName,
+                  consumerId: '',
+                  goodsSkuId: state.inits[i].goodsInfo.skuId,
+                  goodsSkuSubject: state.inits[i].goodsInfo.skuSubject,
+                  goodsOriginPrice: state.inits[i].goodsInfo.skuOriginalPrice,
+                  goodsSoldPrice: state.inits[i].aisleGoodsPrice,
+                  goodsSoldQuantity: 1
+                },
+                success: function (res) {
+                  if (res.message === 'ok') {
+                    state.goodsCover = false
+                    state.goodsQqrcode = false
+                    state.paySuccess = true
+                  }
+                }
+              })
+            }
+          }
+        })
+      }
+      t = setInterval(pay, 2000)
       $.ajax({
         type: 'post',
         url: 'http://localhost:3333/api/show/wxqrcode',
@@ -361,7 +418,7 @@ const store = new Vuex.Store({
         data: {
           machineId: state.initres.machineInfo.machineId,
           promotionId: null,
-          outTradeNo: state.machineCode + '-' + new Date().getTime(),
+          outTradeNo: window.localStorage.PayLineNumber,
           orderTotalAmount: state.inits[i].aisleGoodsPrice,
           aisleName: state.inits[i].aisleName,
           goodsSkuId: state.inits[i].goodsInfo.skuId,
@@ -370,7 +427,6 @@ const store = new Vuex.Store({
           goodsSoldPrice: state.inits[i].aisleGoodsPrice,
           goodsSoldQuantity: 1
         },
-        datatype: 'json',
         success: function (res) {
           if (res) {
             state.wxval = JSON.parse(res.body).wxQrcodeUrl
@@ -394,7 +450,7 @@ const store = new Vuex.Store({
             arr.splice(0, arr.length)
             state.num = arr
           } else {
-            window.alert('')
+            window.alert('获取二维码失败，请检查网络！')
           }
         }
       })
@@ -405,7 +461,7 @@ const store = new Vuex.Store({
         data: {
           machineId: state.initres.machineInfo.machineId,
           promotionId: null,
-          outTradeNo: state.machineCode + '-' + new Date().getTime(),
+          outTradeNo: window.localStorage.PayLineNumber,
           orderTotalAmount: state.inits[i].aisleGoodsPrice,
           aisleName: state.inits[i].aisleName,
           goodsSkuId: state.inits[i].goodsInfo.skuId,
@@ -414,7 +470,6 @@ const store = new Vuex.Store({
           goodsSoldPrice: state.inits[i].aisleGoodsPrice,
           goodsSoldQuantity: 1
         },
-        datatype: 'json',
         success: function (res) {
           if (res) {
             state.alival = JSON.parse(res.body).aliQrcodeUrl
@@ -438,7 +493,7 @@ const store = new Vuex.Store({
             arr.splice(0, arr.length)
             state.num = arr
           } else {
-            window.alert('')
+            window.alert('获取二维码失败，请检查网络！')
           }
         }
       })
